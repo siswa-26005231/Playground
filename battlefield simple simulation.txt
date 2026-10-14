@@ -1,0 +1,114 @@
+import random as rd
+
+#force A is French
+a_infantry_hp = 650
+a_infantry_number_max = 80000
+a_infantry_hp_total = int(round(a_infantry_number_max * a_infantry_hp, 0))
+a_infantry_number = a_infantry_number_max
+def a_infantry_attack():
+    a_infantry_dmg = rd.randint(70, 90)
+    a_infantry_dmg_total = a_infantry_number * a_infantry_dmg
+    return a_infantry_dmg_total
+
+a_archer_hp = 250
+a_archer_number_max = 25000
+a_archer_hp_total = int(round(a_archer_number_max * a_archer_hp, 0))
+a_archer_number = a_archer_number_max
+def a_archer_attack():
+    a_archer_dmg = rd.randint(100, 120)
+    a_archer_dmg_total = a_archer_number * a_archer_dmg
+    return a_archer_dmg_total
+
+#force B is English
+b_infantry_hp = 450
+b_infantry_number_max = 62000
+b_infantry_hp_total = int(round(b_infantry_number_max * b_infantry_hp, 0))
+b_infantry_number = b_infantry_number_max
+def b_infantry_attack():
+    b_infantry_dmg = rd.randint(100, 125)
+    b_infantry_dmg_total = b_infantry_number * b_infantry_dmg
+    return b_infantry_dmg_total
+
+b_archer_hp = 200
+b_archer_number_max = 40000
+b_archer_hp_total = int(round(b_archer_number_max * b_archer_hp, 0))
+b_archer_number = b_archer_number_max
+def b_archer_attack():
+    b_archer_dmg = rd.randint(225, 245)
+    b_archer_dmg_total = b_archer_number * b_archer_dmg
+    return b_archer_dmg_total
+    
+a_win = 0
+b_win = 0
+draw = 0
+attempt_max = 50000
+attempt = 0
+
+def reset():
+    global a_infantry_number, a_infantry_hp_red, a_archer_number, a_archer_hp_red, b_infantry_number, b_infantry_hp_red, b_archer_number, b_archer_hp_red 
+
+    a_infantry_number = a_infantry_number_max
+    a_infantry_hp_red = 0
+    a_archer_number = a_archer_number_max
+    a_archer_hp_red = 0
+    b_infantry_number = b_infantry_number_max
+    b_infantry_hp_red = 0
+    b_archer_number = b_archer_number_max
+    b_archer_hp_red = 0
+
+while attempt < attempt_max:
+    #attack by A
+    b_infantry_hp_red = 0
+    b_archer_hp_red = 0
+    if a_infantry_number > 0 and a_archer_number > 0 and b_infantry_number > 0:
+        b_infantry_hp_red = (a_infantry_attack() + a_archer_attack())
+    elif a_infantry_number <= 0 and a_archer_number > 0 and b_infantry_number > 0:
+        b_infantry_hp_red = a_archer_attack()
+    elif a_infantry_number > 0 and a_archer_number > 0 and b_infantry_number <= 0:
+        b_archer_hp_red = (a_infantry_attack() + a_archer_attack())
+    #attack by B
+    a_infantry_hp_red = 0
+    a_archer_hp_red = 0
+    if b_infantry_number > 0 and b_archer_number > 0 and a_infantry_number > 0:
+        a_infantry_hp_red = (b_infantry_attack() + b_archer_attack())
+    elif b_infantry_number <= 0 and b_archer_number > 0 and a_infantry_number > 0:
+        a_infantry_hp_red = b_archer_attack()
+    elif b_infantry_number > 0 and b_archer_number > 0 and a_infantry_number <= 0:
+        a_archer_hp_red = (b_infantry_attack() + b_archer_attack())
+
+    #damage received
+    a_infantry_hp_total -= a_infantry_hp_red
+    a_archer_hp_total -= a_archer_hp_red
+    b_infantry_hp_total -= b_infantry_hp_red
+    b_archer_hp_total -= b_archer_hp_red
+
+    #recalculate number of troops
+    a_infantry_number = int(round(a_infantry_hp_total / a_infantry_hp, 0))
+    a_archer_number = int(round(a_archer_hp_total / a_archer_hp, 0))
+    b_infantry_number = int(round(b_infantry_hp_total / b_infantry_hp, 0))
+    b_archer_number = int(round(b_archer_hp_total / b_archer_hp, 0))
+
+    a_dead = a_infantry_number <= 0 and a_archer_number <= 0
+    b_dead = b_infantry_number <= 0 and b_archer_number <= 0
+
+    #reseting the battle
+    if a_dead and not b_dead:
+        b_win += 1
+        attempt += 1
+        reset()
+    elif not a_dead and b_dead:
+        a_win += 1
+        attempt += 1
+        reset()
+    elif a_dead and b_dead:
+        draw += 1 
+        attempt += 1
+        reset()
+
+print(f"""French win {a_win} time(s)
+English win {b_win} time(s)
+Draw {draw} time(s)
+French winrate: {(a_win / attempt):.2%}
+English winrate : {(b_win / attempt):.2%}
+Draw rate: {(draw / attempt):.2%}
+""")
